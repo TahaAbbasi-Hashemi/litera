@@ -7,3 +7,9 @@ This program is written in a way that it is usable by the nvim plugin [here](htt
 At this moment the program only reads a .lit file and creates the code file from it. 
 
 The program only requires python2 or python3 it works with both. 
+
+To use the programm run 
+    literate --help 
+or 
+    literate filename.lit 
+    
