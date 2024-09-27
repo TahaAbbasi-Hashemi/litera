@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>titlename</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/highlight.min.js"></script>
+<script src="../../share/color_code.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/styles/default.min.css">
+<link rel="stylesheet" href="../../share/default.css">
+</head>
+
+<body>
+<p> <!-- If you want to attach your own CSS documents / -->
+ <!-- Incase you want colorcoded code/file blocks -->
+ <!-- to help with color coding fileblocks / -->
+ <!-- to help with color coding fileblocks / -->
+<!-- With scripts and links the order does matter. -->
+ <!-- Note, folders must end with a /  -->
+ <!-- Note, folders must end with a / -->
+
+
+<h1>Heading1Name</h1>
+<h2>Heading2name</h2>
+<h3>Heading3name</h3>
+<h4>Heading4name</h4>
+<h5>Heading5name</h5>
+<h6>Heading6name</h6>
+
+
+This supports <i>italic</i> text, <b>bold</b> text, and <b><i>italic and bold</b></i> text.
+But do note, it does support all of these over multiple lines.
+For instance <i>this will be italic text,
+
+
+and this will be italic</i> That multiline opperation may or may not be accepted in your markdown viewer.
+
+<h1>Example Calculator Program</h1>
+<!-- This is a comment, you wont see this on the HTML  -->
+This program provides basic arithmetic operations: addition, subtraction, and multiplication. It is designed to demonstrate how to structure a simple calculator using Python functions and how to call these functions from a main script.
+</p><p class="fileblock">calculator</p><p><b>Calling: <a href="../../docs/html/test.html#code::addition">addition</a>, <a href="../../docs/html/test.html#code::subtraction">subtraction</a>, <a href="../../docs/html/test.html#code::multiplication">multiplication</a></b></p><p><b>Called by: </b></p>
+<pre><code id="file::calculator" class="python"># calculator.py
+
+@call{addition}
+
+@call{subtraction}
+
+@call{multiplication}</pre></code>
+<p>
+<h2>Functions</h2>
+Purpose: Adds two numbers.
+
+Parameters:
+
+a (int or float): The first number.
+b (int or float): The second number.
+Returns: The sum of a and b.
+</p><p class="codeblock">addition</p><p><b>Calling: </b></p><p><b>Called by: <a href="../../docs/html/test.html#file::calculator">calculator</a></b></p>
+<pre><code id="code::addition" class="python">def add(a, b):
+    return a + b</pre></code>
+<p>
+Purpose: Subtracts the second number from the first number.
+
+Parameters:
+
+a (int or float): The number to be subtracted from.
+b (int or float): The number to subtract.
+Returns: The difference between a and b.
+</p><p class="codeblock">subtraction</p><p><b>Calling: </b></p><p><b>Called by: <a href="../../docs/html/test.html#file::calculator">calculator</a></b></p>
+<pre><code id="code::subtraction" class="python">def subtract(a, b):
+    return a - b</pre></code>
+<p>
+Purpose: Multiplies two numbers.
+
+Parameters:
+
+a (int or float): The first number.
+b (int or float): The second number.
+Returns: The product of a and b.
+</p><p class="codeblock">multiplication</p><p><b>Calling: </b></p><p><b>Called by: <a href="../../docs/html/test.html#file::calculator">calculator</a></b></p>
+<pre><code id="code::multiplication" class="python">def multiply(a, b):
+    return a * b</pre></code>
+<p>
+<h2>Example Usage </h2>
+</p><p class="fileblock">main</p><p><b>Calling: </b></p><p><b>Called by: </b></p>
+<pre><code id="file::main" class="python"># main.py
+
+from calculator import add, subtract, multiply
+
+def main():
+    num1 = 10
+    num2 = 5
+
+    print(f"{num1} + {num2} = {add(num1, num2)}")
+    print(f"{num1} - {num2} = {subtract(num1, num2)}")
+    print(f"{num1} * {num2} = {multiply(num1, num2)}")
+
+if __name__ == "__main__":
+    @call{main}</pre></code>
+<p>
+This is just to showcase how indentation works with the calling command
+</p><p class="codeblock">main</p><p><b>Calling: </b></p><p><b>Called by: </b></p>
+<pre><code id="code::main" class="python">main()</pre></code>
+
+</body>
+</html>
