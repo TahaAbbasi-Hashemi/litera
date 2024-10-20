@@ -91,9 +91,9 @@ class Container:
         self.title = ""
         self.execute = []  # VERY DANGEROUS
         self.local_link = []
-        self.web_link = [] # VERY DANGEROUS
+        self.web_link = []  # VERY DANGEROUS
         self.local_script = []
-        self.web_script = [] # VERY DANGEROUS
+        self.web_script = []  # VERY DANGEROUS
 
     def add(self, block: Block) -> None:
         """
@@ -113,15 +113,16 @@ class Container:
         """
         self.title = title
 
-    def add_llink(self, link_type:str, link_address:str) -> None:
+    def add_llink(self, link_type: str, link_address: str) -> None:
         self.local_link.append([link_type, link_address])
 
-        
-    def add_wlink(self, link_type:str, link_address:str) -> None:
+    def add_wlink(self, link_type: str, link_address: str) -> None:
         self.web_link.append([link_type, link_address])
 
 
-def make_block(block_type: str, content: str, container: str, language: str = "", name: str = "") -> Block:
+def make_block(
+    block_type: str, content: str, container: str, language: str = "", name: str = ""
+) -> Block:
     """
     Creates a block based on the type.
 
@@ -162,7 +163,7 @@ def parse_files(filenames: List[str]) -> Dict[str, Container]:
         return matches[-1] if matches else ""
 
     containers: Dict[str, Container] = {}
-    pattern1 = r"``` ([\w_]+) ([\w_.-]+)\s*"  # Code and file block starting
+    pattern1 = r"```([\w_]+) ([\w_.-]+)\s*"  # Code and file block starting
     pattern2 = r"```\s*"  # Code and file block ending
 
     for filename in filenames:
@@ -175,7 +176,7 @@ def parse_files(filenames: List[str]) -> Dict[str, Container]:
         container.code_dir = extract_last_match(r"@code_folder{(.*?)}", text)
         container.execute = re.findall(r"@execute_end{(.*?)}", text)
         container.local_script = re.findall(r"@local_script{(.*?)}", text)
-        container.web_script = re.findall(r"@web_script{(.*?)}", text) # dangerous
+        container.web_script = re.findall(r"@web_script{(.*?)}", text)  # dangerous
         links = re.findall(r"@local_link{(.*?)}", text)
         if links:
             for link in links:
@@ -194,14 +195,18 @@ def parse_files(filenames: List[str]) -> Dict[str, Container]:
             end_match = re.match(pattern2, line)
             if start_match:
                 if content:
-                    container.add(make_block(block_type, content, filename, language, name))
+                    container.add(
+                        make_block(block_type, content, filename, language, name)
+                    )
                 content, language, name = "", "", ""  # Reset
                 language = start_match.group(1).strip()
                 name = start_match.group(2).strip()
                 block_type = "file" if re.search(r"\.\w+$", name) else "code"
             elif end_match:
                 if block_type in {"file", "code"} and content:
-                    container.add(make_block(block_type, content, filename, language, name))
+                    container.add(
+                        make_block(block_type, content, filename, language, name)
+                    )
                 content, language, name = "", "", ""  # Reset
                 block_type = "doc"
             else:
@@ -214,7 +219,9 @@ def parse_files(filenames: List[str]) -> Dict[str, Container]:
     return containers
 
 
-def replace_calls(content: str, code_blocks: Dict[str, CodeBlock], index: int = 0, max_index: int = 12) -> str:
+def replace_calls(
+    content: str, code_blocks: Dict[str, CodeBlock], index: int = 0, max_index: int = 12
+) -> str:
     """
     Replaces @call{} patterns in the content with the corresponding code blocks.
 
@@ -230,7 +237,7 @@ def replace_calls(content: str, code_blocks: Dict[str, CodeBlock], index: int = 
 
     def add_indent(block_content: str, indent_level: int) -> str:
         lines = block_content.split("\n")
-        spaces = " " * indent_level
+        spaces = " " * (indent_level - 1)
         indented_lines = [lines[0]] + [spaces + line for line in lines[1:]]
         return "\n".join(indented_lines)
 
@@ -246,11 +253,15 @@ def replace_calls(content: str, code_blocks: Dict[str, CodeBlock], index: int = 
         for call in calls:
             stripped_call = call.strip()  # removing trailing spaces
             if stripped_call in code_blocks:
-                indented_block = add_indent(code_blocks[stripped_call].content, indent_level + 1)
+                indented_block = add_indent(
+                    code_blocks[stripped_call].content, indent_level + 1
+                )
                 updated_line = updated_line.replace(f"@call{{{call}}}", indented_block)
             else:
                 print(f"ERROR: callblock not found: {call}")
-                updated_line = updated_line.replace(f"@call{{{call}}}", f"@error{{{call}}}")
+                updated_line = updated_line.replace(
+                    f"@call{{{call}}}", f"@error{{{call}}}"
+                )
 
         updated_lines.append(updated_line)
 
@@ -263,10 +274,20 @@ def replace_calls(content: str, code_blocks: Dict[str, CodeBlock], index: int = 
     return block_text
 
 
-def find_calls(container_dict: Dict[str, Container], blocks: Dict[str, Block]) -> Dict[str, Block]:
+def find_calls(
+    container_dict: Dict[str, Container], blocks: Dict[str, Block]
+) -> Dict[str, Block]:
     # Split into code and file blocks
     for block in blocks.values():
-        block.calling_name = os.path.join(container_dict[block.container].doc_dir, block.container + ".html") + "#" + block.type + "::" + block.name
+        block.calling_name = (
+            os.path.join(
+                container_dict[block.container].doc_dir, block.container + ".html"
+            )
+            + "#"
+            + block.type
+            + "::"
+            + block.name
+        )
         lines = block.content.split("\n")
         for line in lines:
             calls = re.findall(r"@call\{(.*?)\}", line)
@@ -276,7 +297,14 @@ def find_calls(container_dict: Dict[str, Container], blocks: Dict[str, Block]) -
                     calling_block = blocks[stripped_call]
                 except KeyError:
                     continue
-                calling_block_name = os.path.join(container_dict[calling_block.container].doc_dir, calling_block.container + ".html") + "#code::" + calling_block.name
+                calling_block_name = (
+                    os.path.join(
+                        container_dict[calling_block.container].doc_dir,
+                        calling_block.container + ".html",
+                    )
+                    + "#code::"
+                    + calling_block.name
+                )
                 calling_block.called_by.append(block.calling_name)
                 block.calling.append(calling_block_name)
                 blocks[stripped_call] = calling_block
@@ -293,44 +321,40 @@ def write_html(containers: Dict[str, Container], blocks: Dict[str, Block]) -> No
             html_ref = f'<a href="{current_dir+link}">{display_text}</a>'
             html_refs.append(html_ref)
         return f'<p><b>{label}: {", ".join(html_refs)}</b></p>'
-    
+
     def local_link_to_html(links, current_dir):
         current_dir = "/".join([".."] * (len(current_dir.split("/")) - 1)) + "/"
         html_links = []
         for link in links:
             link_type = link[0]
             link_add = link[1]
-            link_text = f"<link rel=\"{link_type}\" href=\"{current_dir+link_add}\">"
+            link_text = f'<link rel="{link_type}" href="{current_dir+link_add}">'
             html_links.append(link_text)
         return f"{"\n".join(html_links)}"
-    
-    
+
     def web_link_to_html(links):
         html_links = []
         for link in links:
             link_type = link[0]
             link_add = link[1]
-            link_text = f"<link rel=\"{link_type}\" href=\"{link_add}\">"
+            link_text = f'<link rel="{link_type}" href="{link_add}">'
             html_links.append(link_text)
         return f"{"\n".join(html_links)}"
-    
+
     def local_script_to_html(scripts, current_dir):
         current_dir = "/".join([".."] * (len(current_dir.split("/")) - 1)) + "/"
         html_scripts = []
         for script in scripts:
-            link_text = f"<script src=\"{current_dir+script}\"></script>"
+            link_text = f'<script src="{current_dir+script}"></script>'
             html_scripts.append(link_text)
         return f"{"\n".join(html_scripts)}"
-    
-    
+
     def web_script_to_html(scripts):
         html_scripts = []
         for script in scripts:
-            link_text = f"<script src=\"{script}\"></script>"
+            link_text = f'<script src="{script}"></script>'
             html_scripts.append(link_text)
         return f"{"\n".join(html_scripts)}"
-
-
 
     for container in containers.values():
         doc_filename = os.path.join(container.doc_dir, container.name + ".html")
@@ -361,20 +385,28 @@ def write_html(containers: Dict[str, Container], blocks: Dict[str, Block]) -> No
                     (r"## (.*)", r"<h2>\1</h2>"),
                     (r"# (.*)", r"<h1>\1</h1>"),
                     (r"\*\*(.*?)\*\*", r"<b>\1</b>", re.DOTALL),
+                    (r"__(.*?)__", r"<b>\1</b>", re.DOTALL),
                     (r"\*(.*?)\*", r"<i>\1</i>", re.DOTALL),
+                    (r"_(.*?)_", r"<i>\1</i>", re.DOTALL),
                 ]
                 for pattern, replacement, *flags in patterns:
                     if flags:
-                        block.content = re.sub(pattern, replacement, block.content, flags=flags[0])
+                        block.content = re.sub(
+                            pattern, replacement, block.content, flags=flags[0]
+                        )
                     else:
                         block.content = re.sub(pattern, replacement, block.content)
-                block.content = re.sub(r"@\w+\{[^}]*\}", "", block.content)  # remove commands
+                block.content = re.sub(
+                    r"@\w+\{[^}]*\}", "", block.content
+                )  # remove commands
                 html_content += "<p>" + block.content + "\n</p>"
             if block.type in ["file", "code"]:
                 code_name = f"{block.type}::{block.name}"
                 current_name = f'<p class="{block.type}block">{block.name}</p>'
                 calling = href_to_html(block.calling, "Calling", container.doc_dir)
-                called_by = href_to_html(block.called_by, "Called by", container.doc_dir)
+                called_by = href_to_html(
+                    block.called_by, "Called by", container.doc_dir
+                )
                 content = f"""{current_name}{calling}{called_by}
 <pre><code id="{code_name}" class="{block.language}">{block.content}</pre></code>"""
                 html_content += content + "\n"
@@ -407,13 +439,15 @@ def main(filenames=[]):
                 code_blocks[block.name] = block
 
     # Writing Code
+    print(file_blocks)
+    print(code_blocks)
     for block in file_blocks.keys():
         output = replace_calls(file_blocks[block].content, code_blocks, 0)
         container = containers[file_blocks[block].container]
         if not os.path.exists(container.code_dir) and container.code_dir:
             os.makedirs(container.code_dir)
-        with open(container.code_dir+ file_blocks[block].location, "w") as file:
-                file.write(output)
+        with open(container.code_dir + file_blocks[block].location, "w") as file:
+            file.write(output)
 
     # Writing Documentations
     blocks_dict = {**file_blocks, **code_blocks}
@@ -425,9 +459,12 @@ def main(filenames=[]):
         for command in container.execute:
             call(command.split())
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Converts Markdown code to python and html code')
-    parser.add_argument('--files', nargs='+', help='List of file names', required=True)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Converts Markdown code to python and html code"
+    )
+    parser.add_argument("--files", nargs="+", help="List of file names", required=True)
     args = parser.parse_args()
     filenames = args.files
     main(filenames)
