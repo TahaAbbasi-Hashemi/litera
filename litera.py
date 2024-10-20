@@ -439,8 +439,6 @@ def main(filenames=[]):
                 code_blocks[block.name] = block
 
     # Writing Code
-    print(file_blocks)
-    print(code_blocks)
     for block in file_blocks.keys():
         output = replace_calls(file_blocks[block].content, code_blocks, 0)
         container = containers[file_blocks[block].container]
